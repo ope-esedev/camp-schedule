@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zarepta Camp Fixture Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --field:#3C6E47; --field-dark:#2A4E33; --pool:#1E7A85; --amber:#E8A33D;
+    --chalk:#F5F6F0; --card:#FFFDF7; --ink:#182420; --ink-soft:#4B5850;
+    --line:#D9D3C1; --danger:#B7472A; --indoor:#7A4FA0;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--chalk);
+    background-image:repeating-linear-gradient(90deg, rgba(60,110,71,0.05) 0px, rgba(60,110,71,0.05) 1px, transparent 1px, transparent 64px);
+    color:var(--ink); font-family:'Inter',sans-serif; min-height:100vh;
+  }
+  .display{font-family:'Bebas Neue',sans-serif; letter-spacing:0.04em;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  .app{display:grid; grid-template-columns:340px 1fr; min-height:100vh;}
+  @media (max-width:900px){ .app{grid-template-columns:1fr;} }
+
+  .sidebar{ background:var(--field-dark); color:#EFEAD8; padding:28px 22px 60px; }
+  .brand{margin-bottom:26px;}
+  .brand .display{font-size:34px; line-height:0.9; color:#fff;}
+  .brand .sub{font-size:12px; color:#B9C9BB; margin-top:4px; text-transform:uppercase; letter-spacing:0.12em;}
+
+  .lever-group{margin-bottom:22px; border-top:1px solid rgba(255,255,255,0.12); padding-top:16px;}
+  .lever-group h3{ font-size:11px; text-transform:uppercase; letter-spacing:0.14em; color:var(--amber); margin:0 0 12px; }
+  .field-row{display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px;}
+  .field-row label{font-size:13px; color:#DCE4DD; flex:1;}
+  .field-row input[type=number]{ width:64px; padding:6px 7px; border-radius:6px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.08); color:#fff; font-family:'IBM Plex Mono',monospace; font-size:13px; text-align:center; }
+  .field-row input[type=time]{ padding:5px 6px; border-radius:6px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.08); color:#fff; font-family:'IBM Plex Mono',monospace; font-size:12px; }
+  .field-row input[type=date]{ padding:5px 6px; border-radius:6px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.08); color:#fff; font-family:'IBM Plex Mono',monospace; font-size:12px; }
+  .field-row input[type=text]{ padding:6px 7px; border-radius:6px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.08); color:#fff; font-size:12px; width:100%; }
+  .field-row select{ padding:5px 6px; border-radius:6px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.08); color:#fff; font-size:12px; }
+  .field-row select option{ color:var(--ink); background:#fff; }
+  .field-row input[type=checkbox]{ width:18px; height:18px; }
+  .hint{font-size:11px; color:#9FB0A2; margin-top:-4px; margin-bottom:10px; line-height:1.4;}
+  .two-col{display:grid; grid-template-columns:1fr 1fr; gap:8px;}
+  .subhead{font-size:11px;color:#B9C9BB; margin-top:10px; margin-bottom:4px; display:block; text-transform:uppercase; letter-spacing:0.08em;}
+  .team-names-list{display:grid; gap:8px;}
+  .team-name-row{display:grid; grid-template-columns:70px 1fr auto; gap:8px; align-items:center;}
+  .team-name-row label{font-size:11px; color:#DCE4DD; text-transform:uppercase; letter-spacing:0.06em;}
+  .team-name-row input{width:100%; padding:6px 7px; border-radius:6px; border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.08); color:#fff; font-size:12px;}
+  .team-name-row .football-toggle{display:flex; align-items:center; gap:6px; font-size:10px; color:#DCE4DD; text-transform:uppercase; letter-spacing:0.06em; white-space:nowrap;}
+  .team-name-row .football-toggle input{width:16px; height:16px; margin:0; padding:0;}
+  .team-name-empty{font-size:12px; color:#9FB0A2; font-style:italic;}
+
+  .main{padding:36px 40px 80px;}
+  @media (max-width:900px){ .main{padding:24px 18px 60px;} }
+  .header-row{display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:6px; flex-wrap:wrap; gap:12px;}
+  .title{font-size:44px;}
+  .summary-line{font-size:13px; color:var(--ink-soft); margin-bottom:26px;}
+  .summary-line b{color:var(--ink);}
+  .print-actions{display:flex; gap:10px; flex-wrap:wrap;}
+  .print-btn{ background:var(--ink); color:#fff; border:none; padding:10px 18px; border-radius:8px; font-family:'IBM Plex Mono',monospace; font-size:12px; letter-spacing:0.04em; cursor:pointer; }
+  .print-btn:hover{background:var(--field-dark);}
+  .print-btn.secondary{background:var(--field);}
+  .print-btn.secondary:hover{background:var(--field-dark);}
+  .warning-banner{ background:#FCEFE7; border:1px solid var(--danger); color:var(--danger); padding:10px 14px; border-radius:8px; font-size:13px; margin-bottom:22px; }
+
+  .day-card{ background:var(--card); border:1px solid var(--line); border-radius:14px; margin-bottom:26px; overflow:hidden; }
+  .day-head{ display:flex; align-items:center; gap:16px; padding:16px 20px; background:linear-gradient(90deg, var(--field-dark), var(--field)); color:#fff; }
+  .day-tab{ font-family:'Bebas Neue',sans-serif; font-size:30px; background:var(--amber); color:var(--ink); padding:2px 14px; border-radius:6px; letter-spacing:0.03em; }
+  .day-head .day-name{font-size:15px; text-transform:uppercase; letter-spacing:0.1em; color:#EFEAD8;}
+  .day-head .day-sub{font-size:12px; color:#DCE4DD; margin-top:2px;}
+  .day-head .day-tag{ margin-left:auto; font-size:11px; padding:4px 10px; border-radius:20px; background:rgba(255,255,255,0.15); text-transform:uppercase; letter-spacing:0.08em; }
+  .day-warn{background:#FCEFE7; color:var(--danger); font-size:12px; padding:8px 20px; border-bottom:1px solid var(--line);}
+  .day-warn div{margin-bottom:2px;}
+
+  .rtimeline{padding:14px 20px 6px; border-bottom:1px solid var(--line);}
+  .rtrow{display:flex; align-items:center; gap:8px; margin-bottom:5px;}
+  .rtlabel{width:82px; flex-shrink:0; font-size:9px; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-soft); font-family:'IBM Plex Mono',monospace;}
+  .rttrack{position:relative; height:18px; background:#EEEAD9; border-radius:4px; flex:1;}
+  .rseg{position:absolute; top:0; height:100%; border-radius:3px; font-size:8px; color:#fff; overflow:hidden; white-space:nowrap; padding-left:3px; line-height:18px;}
+  .rseg.swim{background:var(--pool);}
+  .rseg.football{background:var(--field);}
+  .rseg.photo{background:var(--amber); color:var(--ink);}
+  .rseg.overrun{outline:2px solid var(--danger); outline-offset:-2px;}
+
+  .day-body{padding:18px 22px 22px;}
+  .block-title{ font-size:12px; text-transform:uppercase; letter-spacing:0.1em; color:var(--ink-soft); margin:18px 0 8px; display:flex; align-items:center; gap:8px; }
+  .block-title:first-child{margin-top:0;}
+  .dot{width:8px; height:8px; border-radius:50%; display:inline-block;}
+  .dot.morning{background:#8B8172;}
+  .dot.photo{background:var(--amber);}
+  .dot.swim{background:var(--pool);}
+  .dot.football{background:var(--field);}
+
+  table{width:100%; border-collapse:collapse; font-size:13px;}
+  th{ text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-soft); padding:6px 8px; border-bottom:1px solid var(--line); }
+  td{padding:7px 8px; border-bottom:1px solid #EEE9DA;}
+  tr:last-child td{border-bottom:none;}
+  td.time, th.time{font-family:'IBM Plex Mono',monospace; white-space:nowrap; width:110px;}
+  .tag{ display:inline-block; font-size:10px; padding:2px 8px; border-radius:20px; font-family:'IBM Plex Mono',monospace; }
+  .tag.g{background:#F0DCE3; color:#8A2846;}
+  .tag.b{background:#DCE6F0; color:#204A73;}
+  .tag.indoor{background:#EAE0F2; color:#5C3679;}
+  .tag.overrun{background:#FCEFE7; color:var(--danger);}
+  .fixed-note{font-size:13px; color:var(--ink-soft); background:#F1EEE1; border-radius:8px; padding:0; overflow:hidden;}
+  .fixed-note .row{padding:8px 12px; border-bottom:1px solid #E5E0D0;}
+  .fixed-note .row:last-child{border-bottom:none;}
+  .fixed-note .row b{color:var(--ink);}
+  .empty-note{font-size:13px; color:var(--ink-soft); font-style:italic;}
+  .subtable-label{font-size:10px; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-soft); margin:10px 0 4px; font-family:'IBM Plex Mono',monospace;}
+  .leftover-note{font-size:12px; color:var(--ink-soft); margin-top:6px; background:#F1EEE1; padding:6px 10px; border-radius:6px;}
+
+  .legend{ display:flex; gap:18px; flex-wrap:wrap; margin:10px 0 30px; font-size:12px; color:var(--ink-soft); }
+  .legend span{display:inline-flex; align-items:center; gap:6px;}
+
+  .groups-panel{display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:28px;}
+  @media (max-width:700px){ .groups-panel{grid-template-columns:1fr;} }
+  .groups-card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px 20px;}
+  .groups-card h4{margin:0 0 10px; font-size:11px; text-transform:uppercase; letter-spacing:0.1em; color:var(--ink-soft);}
+  .group-row{font-size:13px; padding:6px 0; border-bottom:1px solid #EEE9DA;}
+  .group-row:last-child{border-bottom:none;}
+  .group-row b{color:var(--ink); font-family:'IBM Plex Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; margin-right:8px;}
+
+  @media print{
+    .sidebar, .print-btn{display:none !important;}
+    .app{grid-template-columns:1fr;}
+    .day-card{break-inside:avoid; border:1px solid #999;}
+    body{background:#fff;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="display">ZAREPTA<br>FIXTURE BOARD</div>
+      <div class="sub">Christian Camp Schedule Generator</div>
+    </div>
+
+    <div class="lever-group">
+      <h3>Camp setup</h3>
+      <div class="field-row"><label>Camp name</label><input type="text" id="campName" value="Zarepta"></div>
+      <div class="field-row"><label>Camp days</label><input type="number" id="campDays" min="1" max="14" value="5"></div>
+      <div class="field-row"><label>Start date</label><input type="date" id="startDate"></div>
+      <div class="hint">Day names are generated automatically from the selected start date.</div>
+      <div class="hint">The last day is reserved for football play-offs to settle a winner.</div>
+    </div>
+
+    <div class="lever-group">
+      <h3>Teams</h3>
+      <div class="field-row"><label>Girl teams (all swim)</label><input type="number" id="girlsTeams" min="0" max="10" value="8"></div>
+      <div class="field-row"><label>Boy teams (all swim)</label><input type="number" id="boysTeams" min="0" max="10" value="8"></div>
+      <div class="field-row"><label>Kids per team</label><input type="number" id="kidsPerTeam" min="1" max="30" value="10"></div>
+      <div class="hint">Every team can swim. Football teams are selected individually in the team names section below.</div>
+    </div>
+
+    <div class="lever-group">
+      <h3>Team names</h3>
+      <span class="subhead">Girls</span>
+      <div id="girlsTeamNames" class="team-names-list"></div>
+      <span class="subhead">Boys</span>
+      <div id="boysTeamNames" class="team-names-list"></div>
+      <div class="hint">Optional: add a custom name for each team and tick the football checkbox for teams that should join the football schedule.</div>
+    </div>
+
+    <div class="lever-group">
+      <h3>Football format</h3>
+      <div class="field-row"><label>Teams per group</label><input type="number" id="groupSize" min="2" max="10" value="4"></div>
+      <div class="hint">Teams are split into groups of this size and play a round robin within their own group (new opponent each day). More than one group → last day is a play-off between group winners. One group → a standings-based play-off among the top teams instead.</div>
+    </div>
+
+    <div class="lever-group">
+      <h3>Resources</h3>
+      <div class="field-row"><label>Football pitches</label><input type="number" id="pitches" min="1" max="4" value="1"></div>
+      <div class="field-row"><label>Use indoor hall for girls' football</label><input type="checkbox" id="indoorHall"></div>
+      <div class="hint">When ticked, girls can play indoors at the same time boys play outside, instead of queuing for one pitch.</div>
+      <div class="field-row"><label>Teams per swim slot</label><input type="number" id="teamsPerSwimSlot" min="1" max="6" value="2"></div>
+      <div class="hint">One pool. Only same-gender teams share a slot.</div>
+    </div>
+
+    <div class="lever-group">
+      <h3>Activity durations</h3>
+      <div class="field-row"><label>Swim (min)</label><input type="number" id="swimMin" min="5" max="90" value="30"></div>
+      <div class="field-row"><label>Football, normal days (min)</label><input type="number" id="footballMin" min="5" max="90" value="30"></div>
+      <div class="field-row"><label>Football, last-day play-offs (min)</label><input type="number" id="finalsMin" min="5" max="60" value="20"></div>
+      <div class="field-row"><label>Team photo, per team (min)</label><input type="number" id="photoMin" min="0" max="60" value="15"></div>
+      <div class="field-row"><label>Photo day #</label><input type="number" id="photoDay" min="0" max="14" value="1"></div>
+      <div class="hint">Photos run one team at a time, but other teams can swim/play in parallel — only the team being photographed is blocked. Day 0 = skip photos.</div>
+    </div>
+
+    <div class="lever-group">
+      <h3>Fixed daily blocks (all teams)</h3>
+      <span class="subhead">Devotions</span>
+      <div class="two-col"><input type="time" id="devStart" value="09:00"><input type="time" id="devEnd" value="09:30"></div>
+      <span class="subhead">Clean team room</span>
+      <div class="two-col"><input type="time" id="cleanStart" value="09:30"><input type="time" id="cleanEnd" value="10:00"></div>
+      <span class="subhead">Boys bible study</span>
+      <div class="two-col"><input type="time" id="bBibleStart" value="10:00"><input type="time" id="bBibleEnd" value="10:45"></div>
+      <span class="subhead">Girls bible study</span>
+      <div class="two-col"><input type="time" id="gBibleStart" value="11:00"><input type="time" id="gBibleEnd" value="11:45"></div>
+    </div>
+
+    <div class="lever-group">
+      <h3>Morning sport slots</h3>
+      <div class="hint">While one gender is in bible study, the other has this window free.</div>
+      <span class="subhead">Girls window (while boys study)</span>
+      <div class="two-col"><input type="time" id="gSportStart" value="10:00"><input type="time" id="gSportEnd" value="10:45"></div>
+      <div class="field-row"><label>Use for</label>
+        <select id="gMorningUse"><option value="swim" selected>Swimming</option><option value="football">Football</option><option value="split">Football + swim together</option><option value="none">Nothing</option></select>
+      </div>
+      <span class="subhead">Boys window (while girls study)</span>
+      <div class="two-col"><input type="time" id="bSportStart" value="11:00"><input type="time" id="bSportEnd" value="11:45"></div>
+      <div class="field-row"><label>Use for</label>
+        <select id="bMorningUse"><option value="swim" selected>Swimming</option><option value="football">Football</option><option value="split">Football + swim together</option><option value="none">Nothing</option></select>
+      </div>
+      <div class="hint">Swimming keeps first priority in these windows. Football can still use free pitches and teams at the same time when it doesn't clash with swimming. On the last day these windows are swim-only; finals stay in the afternoon.</div>
+    </div>
+
+    <div class="lever-group">
+      <h3>Afternoon window (all teams)</h3>
+      <div class="two-col"><input type="time" id="aStart" value="13:00"><input type="time" id="aEnd" value="17:00"></div>
+      <span class="subhead">Last day only, can run later</span>
+      <input type="time" id="aEndLastDay" value="17:30" style="width:100%">
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="header-row">
+      <div class="title display">ZAREPTA FIXTURES</div>
+      <div class="print-actions">
+        <button class="print-btn" onclick="window.print()">Print schedule ↗</button>
+        <button class="print-btn secondary" onclick="printWeeklySchedule('swim')">Print swim week ↗</button>
+        <button class="print-btn secondary" onclick="printWeeklySchedule('football')">Print football week ↗</button>
+        <button class="print-btn secondary" onclick="printWeeklySchedule('photo')">Print photo week ↗</button>
+        <button class="print-btn secondary" onclick="printTeamSchedules()">Print team schedules ↗</button>
+        <button class="print-btn secondary" onclick="printCheckpointChallenge()">Print checkpoint challenge ↗</button>
+      </div>
+    </div>
+    <div class="summary-line" id="summaryLine"></div>
+    <div class="legend">
+      <span><span class="dot morning"></span>Fixed slot</span>
+      <span><span class="dot photo"></span>Team photo</span>
+      <span><span class="dot swim"></span>Swimming</span>
+      <span><span class="dot football"></span>Football</span>
+    </div>
+    <div id="groupsPanel"></div>
+    <div id="schedule"></div>
+  </main>
+</div>
+
+<script>
+// ============ helpers ============
+const customTeamNames = { g: [], b: [] };
+const customTeamFootball = { g: [], b: [] };
+const STORAGE_KEY = 'zarepta-fixture-board-v1';
+const SPORT_TRANSITION_MIN = 15;
+const CHECKPOINT_GAMES = ['Teppi spæl', 'Bein og armar', 'Bøkur í Bíbliuni', 'Minnast ting', 'Git longd', 'Koppar', 'Balansera bólt', 'T-shirt', 'Minefield', 'Djór'];
+const CHECKPOINT_BASE_OFFSETS = {
+  1: [0,0,0,0,0,0,0,0,0,0],
+  2: [1,1,1,1,1,1,1,1,1,1],
+  3: [1,1,1,1,1,1,1,1,1,1],
+  4: [0,2,0,2,0,2,0,2,0,2],
+  5: [0,0,0,1,4,0,0,0,1,4],
+  6: [0,2,0,2,0,2,0,2,0,2],
+  7: [1,1,1,1,1,1,1,1,1,1],
+  8: [0,2,0,2,0,2,0,2,0,2],
+  9: [1,1,1,1,1,1,1,1,1,1],
+  10:[0,0,0,0,0,0,0,0,1,9]
+};
+
+function timeToMin(t){ const [h,m]=t.split(':').map(Number); return h*60+m; }
+function minToTime(m){ m=Math.round(m); const h=Math.floor(m/60), mm=m%60; return String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0'); }
+function escapeHtml(str=''){ return String(str).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+function makeTeamId(gender, idx){ return `${gender}:${idx}`; }
+function teamIdGender(teamId){ return typeof teamId==='string' && teamId.includes(':') ? teamId.split(':')[0] : ''; }
+function teamIdIndex(teamId){ return typeof teamId==='string' && teamId.includes(':') ? parseInt(teamId.split(':')[1], 10) : -1; }
+function defaultTeamName(gender, idx){ return `${gender==='g'?'Girls':'Boys'} Team ${idx+1}`; }
+function teamName(gender, idx, customNames){
+  const label = customNames?.[gender]?.[idx]?.trim();
+  return label || defaultTeamName(gender, idx);
+}
+function displayTeam(teamId, customNames={ g: customTeamNames.g, b: customTeamNames.b }){
+  const gender = teamIdGender(teamId);
+  const idx = teamIdIndex(teamId);
+  if((gender==='g' || gender==='b') && idx>=0) return teamName(gender, idx, customNames);
+  return String(teamId || '');
+}
+function addDays(dateStr, dayOffset){
+  const date = new Date(`${dateStr}T12:00:00`);
+  date.setDate(date.getDate()+dayOffset);
+  return date;
+}
+function getDayMeta(startDate, dayOffset){
+  const date = addDays(startDate, dayOffset);
+  return {
+    dayName: date.toLocaleDateString('en-US', { weekday:'long' }),
+    dateLabel: date.toLocaleDateString('en-US', { day:'numeric', month:'short', year:'numeric' })
+  };
+}
+function loadPersistedState(){
+  try{
+    const raw = window.localStorage?.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const saved = JSON.parse(raw);
+    Object.entries(saved.controls || {}).forEach(([id, value])=>{
+      const el = document.getElementById(id);
+      if(!el) return;
+      if(el.type==='checkbox') el.checked = !!value;
+      else el.value = value;
+    });
+    customTeamNames.g = Array.isArray(saved.teamNames?.g) ? [...saved.teamNames.g] : [];
+    customTeamNames.b = Array.isArray(saved.teamNames?.b) ? [...saved.teamNames.b] : [];
+    customTeamFootball.g = Array.isArray(saved.teamFootball?.g) ? [...saved.teamFootball.g].map(Boolean) : [];
+    customTeamFootball.b = Array.isArray(saved.teamFootball?.b) ? [...saved.teamFootball.b].map(Boolean) : [];
+  }catch(err){
+    console.warn('Could not load saved schedule state', err);
+  }
+}
+function ensureTeamNameState(state){
+  [['g', state.girlsTeams], ['b', state.boysTeams]].forEach(([gender, count])=>{
+    while(customTeamNames[gender].length < count) customTeamNames[gender].push('');
+    while(customTeamFootball[gender].length < count) customTeamFootball[gender].push(true);
+  });
+}
+function syncTeamConfigsFromInputs(){
+  document.querySelectorAll('.team-name-input').forEach(input=>{
+    const gender = input.dataset.gender;
+    const idx = Number(input.dataset.index);
+    if(gender && Number.isInteger(idx)) customTeamNames[gender][idx] = input.value;
+  });
+  document.querySelectorAll('.team-football-input').forEach(input=>{
+    const gender = input.dataset.gender;
+    const idx = Number(input.dataset.index);
+    if(gender && Number.isInteger(idx)) customTeamFootball[gender][idx] = input.checked;
+  });
+}
+function buildTeamNameRows(gender, count){
+  if(count===0) return '<div class="team-name-empty">No teams.</div>';
+  return Array.from({length:count},(_,i)=>`<div class="team-name-row"><label>${gender==='g'?'Girls':'Boys'} ${i+1}</label><input class="team-name-input" data-gender="${gender}" data-index="${i}" type="text" placeholder="Optional name" value="${escapeHtml(customTeamNames[gender][i] || '')}"><label class="football-toggle"><input class="team-football-input" data-gender="${gender}" data-index="${i}" type="checkbox" ${customTeamFootball[gender][i] ? 'checked' : ''}><span>Football</span></label></div>`).join('');
+}
+function wireTeamConfigInputs(){
+  document.querySelectorAll('.team-name-input, .team-football-input').forEach(input=>{
+    if(input.dataset.bound==='yes') return;
+    input.addEventListener('input', render);
+    input.dataset.bound = 'yes';
+  });
+}
+function renderTeamNameInputs(state){
+  ensureTeamNameState(state);
+  const girlsWrap = document.getElementById('girlsTeamNames');
+  const boysWrap = document.getElementById('boysTeamNames');
+  if(girlsWrap.dataset.count !== String(state.girlsTeams)){
+    girlsWrap.innerHTML = buildTeamNameRows('g', state.girlsTeams);
+    girlsWrap.dataset.count = String(state.girlsTeams);
+  }
+  if(boysWrap.dataset.count !== String(state.boysTeams)){
+    boysWrap.innerHTML = buildTeamNameRows('b', state.boysTeams);
+    boysWrap.dataset.count = String(state.boysTeams);
+  }
+  wireTeamConfigInputs();
+}
+
+// ============ round robin (circle method) ============
+function roundRobin(n){
+  if(n<2) return [];
+  const teams=Array.from({length:n},(_,i)=>i);
+  if(teams.length%2!==0) teams.push(-1);
+  const numRounds=teams.length-1, half=teams.length/2;
+  const rounds=[]; let arr=teams.slice();
+  for(let r=0;r<numRounds;r++){
+    const round=[];
+    for(let i=0;i<half;i++){
+      const a=arr[i], b=arr[arr.length-1-i];
+      if(a!==-1 && b!==-1) round.push([a,b]);
+    }
+    rounds.push(round);
+    const fixed=arr[0]; const rest=arr.slice(1); rest.unshift(rest.pop());
+    arr=[fixed,...rest];
+  }
+  return rounds;
+}
+
+// ============ groups ============
+function makeGroups(teamIds, groupSize){
+  if(teamIds.length===0) return [];
+  const numGroups = Math.max(1, Math.ceil(teamIds.length/Math.max(2,groupSize)));
+  const groups=[];
+  const base=Math.floor(teamIds.length/numGroups), extra=teamIds.length%numGroups;
+  let idx=0;
+  for(let g=0; g<numGroups; g++){
+    const size = base + (g<extra?1:0);
+    const members=[];
+    for(let i=0;i<size;i++) members.push(teamIds[idx++]);
+    groups.push(members);
+  }
+  return groups;
+}
+function groupFixturesForDay(groups, dayNum, genderTag, teamNames){
+  const matches=[];
+  groups.forEach((group, gi)=>{
+    const rr = roundRobin(group.length);
+    if(rr.length===0) return;
+    const roundIdx = dayNum % rr.length;
+    rr[roundIdx].forEach(([a,b])=>{
+      matches.push({a:group[a], b:group[b], tag:genderTag, group:gi+1, repeat: dayNum>=rr.length});
+    });
+  });
+  return matches;
+}
+
+// ============ knockout bracket (over group winners, or standings if 1 group) ============
+function nextPow2(n){ let p=1; while(p<n) p*=2; return p; }
+function seedOrder(size){
+  let seeds=[1,2];
+  while(seeds.length<size){
+    const m=seeds.length*2, next=[];
+    for(const s of seeds){ next.push(s); next.push(m+1-s); }
+    seeds=next;
+  }
+  return seeds;
+}
+function buildBracket(n){
+  if(n<2) return [];
+  const size=nextPow2(n);
+  const order=seedOrder(size);
+  let slots=order.map(s=> s<=n ? {type:'seed',seed:s} : {type:'bye'});
+  const rounds=[]; let roundNum=1;
+  while(slots.length>1){
+    const matches=[], nextSlots=[];
+    for(let i=0;i<slots.length;i+=2){
+      const A=slots[i], B=slots[i+1];
+      if(A.type==='bye' && B.type==='bye'){ nextSlots.push({type:'bye'}); matches.push(null); }
+      else if(A.type==='bye'){ nextSlots.push(B); matches.push({bye:true, advancing:B}); }
+      else if(B.type==='bye'){ nextSlots.push(A); matches.push({bye:true, advancing:A}); }
+      else{
+        const id=`R${roundNum}M${matches.length+1}`;
+        matches.push({bye:false,a:A,b:B,id});
+        nextSlots.push({type:'winner',id});
+      }
+    }
+    rounds.push(matches); slots=nextSlots; roundNum++;
+  }
+  return rounds;
+}
+function seedLabelsFor(groups, genderPrefix){
+  if(groups.length>1) return groups.map((g,i)=>`${genderPrefix} Group ${i+1} winner`);
+  const n = groups.length===1 ? groups[0].length : 0;
+  return Array.from({length:n},(_,i)=>`${genderPrefix} standing #${i+1}`);
+}
+function slotLabel(slot, seedLabels){
+  if(!slot) return '?';
+  if(slot.type==='seed') return seedLabels[slot.seed-1] || `Seed ${slot.seed}`;
+  if(slot.type==='winner') return `Winner of ${slot.id}`;
+  return 'Bye';
+}
+function roundName(idx,total){
+  const fromEnd=total-idx;
+  if(fromEnd===1) return 'Final';
+  if(fromEnd===2) return 'Semifinal';
+  if(fromEnd===3) return 'Quarterfinal';
+  return `Round of ${Math.pow(2,fromEnd)}`;
+}
+
+// ============ scheduling engine: team calendars + resource calendars ============
+function overlaps(aStart,aEnd,bStart,bEnd){ return aStart < bEnd && bStart < aEnd; }
+function requiresSportTransition(existingType, nextType){
+  return (existingType==='swim' && nextType==='football') || (existingType==='football' && nextType==='swim');
+}
+function isTeamFree(bookings, team, day, start, end, bookingType=null){
+  return !bookings.some(b => {
+    if(!(b.day===day && b.teams && b.teams.includes(team))) return false;
+    if(overlaps(start,end,b.start,b.end)) return true;
+    if(!bookingType || !requiresSportTransition(b.type, bookingType)) return false;
+    return overlaps(start - SPORT_TRANSITION_MIN, end + SPORT_TRANSITION_MIN, b.start, b.end);
+  });
+}
+// Pool capacity is counted in TEAMS, not bookings, and only same-gender teams may share an interval.
+function isResourceFree(bookings, resource, day, start, end, opts={}){
+  const overlapping = bookings.filter(b=> b.day===day && b.resource===resource && overlaps(start,end,b.start,b.end));
+  if(resource==='Pool'){
+    if(overlapping.length===0) return true;
+    const cap = opts.poolCapacity ?? 1;
+    const sameGender = overlapping.every(b=>b.gender===opts.gender);
+    const teamCount = overlapping.reduce((acc,b)=>acc+b.teams.length,0);
+    return sameGender && (teamCount < cap);
+  }
+  return overlapping.length===0;
+}
+function addFixedBlock(bookings, day, teams, start, end, label){
+  if(teams.length===0) return;
+  bookings.push({day, start, end, type:'fixed', label, teams:[...teams], resource:null, phase:'fixed'});
+}
+
+// Football: real teams, full team+resource conflict checking, time-stepped earliest-fit.
+function scheduleFootballEarliestFit(matches, day, window, bookings, matchMin, pitchNames, indoorEnabled, phase, stepMinutes=5){
+  const scheduled=[], leftover=[];
+  matches.forEach(m=>{
+    // Indoor hall is girls' own dedicated resource — a fully separate schedule from the pitch,
+    // not a shared fallback. It never touches the pitch, so it can never delay/queue behind boys.
+    const candidates = (m.tag==='g' && indoorEnabled) ? ['Indoor Hall'] : [...pitchNames];
+    let placed=null;
+    for(let start=window.start; start+matchMin<=window.end && !placed; start+=stepMinutes){
+      const end=start+matchMin;
+        if(!isTeamFree(bookings,m.a,day,start,end,'football') || !isTeamFree(bookings,m.b,day,start,end,'football')) continue;
+      for(const resource of candidates){
+        if(isResourceFree(bookings, resource, day, start, end)){
+          placed = {day,start,end,type:'football',label:m.group?`Group ${m.group} fixture`:(m.tag==='g'?'Girls fixture':'Boys fixture'), teams:[m.a,m.b], a:m.a,b:m.b, resource, gender:m.tag, phase};
+          break;
+        }
+      }
+    }
+    if(placed){ bookings.push(placed); scheduled.push(placed); }
+    else leftover.push(m);
+  });
+  return {scheduled, leftover};
+}
+function scheduleFootballWithOverrun(matches, day, window, bookings, matchMin, pitchNames, indoorEnabled, phase){
+  const r1 = scheduleFootballEarliestFit(matches, day, window, bookings, matchMin, pitchNames, indoorEnabled, phase);
+  if(r1.leftover.length===0) return {scheduled:r1.scheduled, overrunCount:0};
+  const ext={start:window.end, end:window.end+4*60};
+  const r2 = scheduleFootballEarliestFit(r1.leftover, day, ext, bookings, matchMin, pitchNames, indoorEnabled, phase+'-overrun');
+  r2.scheduled.forEach(b=>b.overrun=true);
+  return {scheduled:[...r1.scheduled, ...r2.scheduled], overrunCount:r2.leftover.length};
+}
+
+// Rotates whose "turn" is first in a priority queue — used so the same teams don't always land
+// the limited morning swim window every single day.
+function rotateForDay(arr, day, chunk){
+  if(arr.length===0) return arr;
+  const offset = ((day * Math.max(1,chunk)) % arr.length + arr.length) % arr.length;
+  return [...arr.slice(offset), ...arr.slice(0,offset)];
+}
+
+// Swim: dynamic batching — don't pre-pair teams; find earliest slot with pool room + free teams.
+function scheduleSwimmingDynamic(teams, day, window, poolCapacity, swimMin, bookings, genderTag, phase, stepMinutes=5){
+  let unscheduled=[...teams];
+  const scheduled=[];
+  let guard=0;
+  while(unscheduled.length>0 && guard<2000){
+    guard++;
+    let placedThisPass=false;
+    for(let start=window.start; start+swimMin<=window.end; start+=stepMinutes){
+      const end=start+swimMin;
+      if(!isResourceFree(bookings,'Pool',day,start,end,{gender:genderTag, poolCapacity})) continue;
+      const freeTeams = unscheduled.filter(t=>isTeamFree(bookings,t,day,start,end,'swim')).slice(0,poolCapacity);
+      if(freeTeams.length===0) continue;
+      const booking = {day,start,end,type:'swim',label:'Swimming',teams:freeTeams,resource:'Pool',gender:genderTag, phase};
+      bookings.push(booking);
+      scheduled.push(booking);
+      unscheduled = unscheduled.filter(t=>!freeTeams.includes(t));
+      placedThisPass=true;
+      break;
+    }
+    if(!placedThisPass) break;
+  }
+  return {scheduled, leftover:unscheduled};
+}
+function scheduleSwimWithOverrun(teams, day, window, bookings, poolCapacity, swimMin, genderTag, phase){
+  const overrunStart = arguments.length > 8 ? arguments[8] : window.end;
+  const r1 = scheduleSwimmingDynamic(teams, day, window, poolCapacity, swimMin, bookings, genderTag, phase);
+  if(r1.leftover.length===0) return {scheduled:r1.scheduled, overrunCount:0};
+  const ext={start:overrunStart, end:overrunStart+4*60};
+  const r2 = scheduleSwimmingDynamic(r1.leftover, day, ext, poolCapacity, swimMin, bookings, genderTag, phase+'-overrun');
+  r2.scheduled.forEach(b=>b.overrun=true);
+  return {scheduled:[...r1.scheduled,...r2.scheduled], overrunCount:r2.leftover.length};
+}
+
+// Photos: one team + the Photographer resource — genuinely parallel with everything else,
+// since only that specific team and the Photographer are blocked.
+function schedulePhotos(teams, day, window, bookings, photoMin, stepMinutes=5){
+  const scheduled=[], leftover=[];
+  teams.forEach(team=>{
+    let placed=null;
+    for(let start=window.start; start+photoMin<=window.end && !placed; start+=stepMinutes){
+      const end=start+photoMin;
+      if(isResourceFree(bookings,'Photographer',day,start,end) && isTeamFree(bookings,team,day,start,end)){
+        placed={day,start,end,type:'photo',label:'Team photo',teams:[team],resource:'Photographer',phase:'photo'};
+      }
+    }
+    if(placed){ bookings.push(placed); scheduled.push(placed); } else leftover.push(team);
+  });
+  return {scheduled, leftover};
+}
+function schedulePhotosWithOverrun(teams, day, window, bookings, photoMin){
+  const r1 = schedulePhotos(teams, day, window, bookings, photoMin);
+  if(r1.leftover.length===0) return {scheduled:r1.scheduled, overrunCount:0};
+  const ext={start:window.end, end:window.end+4*60};
+  const r2 = schedulePhotos(r1.leftover, day, ext, bookings, photoMin);
+  r2.scheduled.forEach(b=>b.overrun=true);
+  return {scheduled:[...r1.scheduled,...r2.scheduled], overrunCount:r2.leftover.length};
+}
+
+// Finals bracket: matchups are seed placeholders ("Group 1 winner"), not real teams, so there's
+// nothing to team-conflict-check against. Only the resource calendar matters, and a round can't
+// start until every match in the previous round has finished.
+function scheduleFinalsBracket(bracket, seedLabels, day, floorStart, bookings, matchMin, pitchNames, indoorEnabled, genderTag, stepMinutes=5){
+  const scheduled=[];
+  let floor=floorStart;
+  bracket.forEach((round, ri)=>{
+    const real = round.filter(m=>m && !m.bye);
+    if(real.length===0) return;
+    let roundEnd=floor;
+    real.forEach(m=>{
+      const candidates = (genderTag==='g' && indoorEnabled) ? ['Indoor Hall'] : [...pitchNames];
+      let placed=null;
+      for(let start=floor; !placed && start<=floor+16*60; start+=stepMinutes){
+        for(const resource of candidates){
+          if(isResourceFree(bookings, resource, day, start, start+matchMin)){
+            placed={day,start,end:start+matchMin,type:'football',label:roundName(ri,bracket.length),a:slotLabel(m.a,seedLabels),b:slotLabel(m.b,seedLabels),teams:[], resource, gender:genderTag, phase:'finals'};
+            break;
+          }
+        }
+      }
+      if(placed){ bookings.push(placed); scheduled.push(placed); roundEnd=Math.max(roundEnd, placed.end); }
+    });
+    floor=roundEnd;
+  });
+  return scheduled;
+}
+
+// ============ state ============
+function readState(){
+  const v=id=>document.getElementById(id).value;
+  const c=id=>document.getElementById(id).checked;
+  return {
+    campName: v('campName').trim() || 'Zarepta',
+    campDays: Math.max(1, parseInt(v('campDays'))||1),
+    startDate: v('startDate'),
+    girlsTeams: Math.max(0, parseInt(v('girlsTeams'))||0),
+    boysTeams: Math.max(0, parseInt(v('boysTeams'))||0),
+    kidsPerTeam: Math.max(1, parseInt(v('kidsPerTeam'))||1),
+    groupSize: Math.max(2, parseInt(v('groupSize'))||4),
+    pitches: Math.max(1, parseInt(v('pitches'))||1),
+    indoorHall: c('indoorHall'),
+    teamsPerSwimSlot: Math.max(1, parseInt(v('teamsPerSwimSlot'))||1),
+    swimMin: Math.max(1, parseInt(v('swimMin'))||1),
+    footballMin: Math.max(1, parseInt(v('footballMin'))||1),
+    finalsMin: Math.max(1, parseInt(v('finalsMin'))||1),
+    photoMin: Math.max(0, parseInt(v('photoMin'))||0),
+    photoDay: Math.max(0, parseInt(v('photoDay'))||0),
+    devStart: v('devStart'), devEnd: v('devEnd'),
+    cleanStart: v('cleanStart'), cleanEnd: v('cleanEnd'),
+    bBibleStart: v('bBibleStart'), bBibleEnd: v('bBibleEnd'),
+    gBibleStart: v('gBibleStart'), gBibleEnd: v('gBibleEnd'),
+    gSportStart: v('gSportStart'), gSportEnd: v('gSportEnd'), gMorningUse: v('gMorningUse'),
+    bSportStart: v('bSportStart'), bSportEnd: v('bSportEnd'), bMorningUse: v('bMorningUse'),
+    aStart: v('aStart'), aEnd: v('aEnd'), aEndLastDay: v('aEndLastDay'),
+    teamNames: { g:[...customTeamNames.g], b:[...customTeamNames.b] },
+    teamFootball: { g:[...customTeamFootball.g], b:[...customTeamFootball.b] }
+  };
+}
+function saveState(){
+  try{
+    syncTeamConfigsFromInputs();
+    const controls = {};
+    document.querySelectorAll('.sidebar input, .sidebar select').forEach(el=>{
+      if(!el.id) return;
+      controls[el.id] = el.type==='checkbox' ? el.checked : el.value;
+    });
+    window.localStorage?.setItem(STORAGE_KEY, JSON.stringify({
+      controls,
+      teamNames: { g:[...customTeamNames.g], b:[...customTeamNames.b] },
+      teamFootball: { g:[...customTeamFootball.g], b:[...customTeamFootball.b] }
+    }));
+  }catch(err){
+    console.warn('Could not save schedule state', err);
+  }
+}
+function phaseLabel(phase){
+  if(!phase) return '';
+  if(phase==='afternoon') return 'Afternoon';
+  if(phase==='finals') return 'Finals';
+  if(phase==='photo') return 'Photo';
+  if(phase==='morning-g') return 'Girls morning';
+  if(phase==='morning-b') return 'Boys morning';
+  if(phase==='afternoon-overrun') return 'Afternoon (late)';
+  if(phase==='morning-g-overrun') return 'Girls morning (late)';
+  if(phase==='morning-b-overrun') return 'Boys morning (late)';
+  if(phase==='finals-overrun') return 'Finals (late)';
+  return phase.replace(/-/g,' ');
+}
+function getScheduleData(){
+  const counts = {
+    girlsTeams: Math.max(0, parseInt(document.getElementById('girlsTeams').value) || 0),
+    boysTeams: Math.max(0, parseInt(document.getElementById('boysTeams').value) || 0)
+  };
+  ensureTeamNameState(counts);
+  renderTeamNameInputs(counts);
+  syncTeamConfigsFromInputs();
+  const state = readState();
+  const days = generate(state);
+  return { state, days };
+}
+function getWeekLabel(days){
+  if(!days.length) return 'No days';
+  const first = days[0].dateLabel;
+  const last = days[days.length-1].dateLabel;
+  return first===last ? first : `${first} – ${last}`;
+}
+function openPrintWindow(title, subtitle, bodyHtml){
+  const win = window.open('', '_blank', 'width=1100,height=850');
+  if(!win){
+    window.alert('Please allow pop-ups to print this schedule.');
+    return;
+  }
+  const headerHtml = title ? `<h1>${escapeHtml(title)}</h1>${subtitle ? `<div class="sub">${escapeHtml(subtitle)}</div>` : ''}` : '';
+  win.document.write(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><title>${escapeHtml(title || 'Print')}</title><style>
+    body{font-family:Inter,Arial,sans-serif;color:#182420;margin:32px;}
+    h1{font-family:'Bebas Neue',Arial,sans-serif;letter-spacing:0.04em;font-size:42px;margin:0 0 4px;}
+    .sub{color:#4B5850;font-size:14px;margin-bottom:24px;}
+    .day{border:1px solid #D9D3C1;border-radius:12px;margin-bottom:18px;overflow:hidden;break-inside:avoid;}
+    .day-head{background:#3C6E47;color:#fff;padding:12px 16px;font-weight:700;display:flex;justify-content:space-between;gap:12px;}
+    .day-body{padding:14px 16px;}
+    table{width:100%;border-collapse:collapse;font-size:12px;}
+    th,td{padding:7px 8px;border-bottom:1px solid #E5E0D0;text-align:left;vertical-align:top;}
+    th{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:#4B5850;}
+    tr:last-child td{border-bottom:none;}
+    .mono{font-family:'IBM Plex Mono',monospace;white-space:nowrap;}
+    .empty{font-style:italic;color:#4B5850;}
+    .team-page{page-break-after:always;margin-bottom:28px;}
+    .team-page:last-child{page-break-after:auto;}
+    .team-name{font-family:'Bebas Neue',Arial,sans-serif;font-size:34px;letter-spacing:0.04em;margin:0 0 8px;}
+    .photo-note{margin:0 0 12px;color:#4B5850;font-size:13px;}
+    .compact th,.compact td{font-size:11px;padding:6px 7px;border:1px solid #D9D3C1;}
+    .compact .activity-col{width:220px;}
+    .blank-line{display:block;height:14px;border-bottom:1px solid #8B8172;min-width:64px;}
+    .slot-line{display:block;min-height:14px;line-height:1.25;}
+    .matrix-table th,.matrix-table td{border:1px solid #D9D3C1;}
+    .swim-team{display:block;padding:2px 4px;border-radius:4px;margin:1px 0;}
+    .swim-team.girls{background:#F7DCE8;}
+    .swim-team.boys{background:#DCEBFA;}
+    @media print{body{margin:18px;} .day{break-inside:avoid;}}
+  </style></head><body>${headerHtml}${bodyHtml}</body></html>`);
+  win.document.close();
+  win.focus();
+  setTimeout(()=>win.print(), 250);
+}
+function renderWeeklySections(days, type){
+  const labels = {
+    swim: { empty:'No swimming scheduled.' },
+    football: { empty:'No football scheduled.', headers:['Time','Round','Fixture','Result (___ - ___)'] },
+    photo: { empty:'No photo sessions scheduled.', headers:['Time','Team'] }
+  }[type];
+  if(type==='swim') return renderWeeklySwimMatrix(days, labels.empty);
+  const relevantDays = type==='photo'
+    ? days.filter(day=>day.bookings.some(b=>b.type==='photo'))
+    : days;
+  if(!relevantDays.length) return `<div class="empty">${labels.empty}</div>`;
+  return relevantDays.map(day=>{
+    const items = day.bookings
+      .filter(b=>b.type===type)
+      .slice()
+      .sort((a,b)=>a.start-b.start || a.end-b.end);
+    let content = `<div class="empty">${labels.empty}</div>`;
+    if(items.length){
+      if(type==='swim'){
+        content = `<div class="empty">${labels.empty}</div>`;
+      } else if(type==='football'){
+        content = `<table><tr>${labels.headers.map(h=>`<th>${h}</th>`).join('')}</tr>${items.map(m=>`<tr><td class="mono">${minToTime(m.start)}–${minToTime(m.end)}</td><td>${escapeHtml(m.label)}</td><td>${escapeHtml(`${displayTeam(m.a)} vs ${displayTeam(m.b)}`)}</td><td class="mono">___ - ___</td></tr>`).join('')}</table>`;
+      } else {
+        content = `<table><tr>${labels.headers.map(h=>`<th>${h}</th>`).join('')}</tr>${items.map(p=>`<tr><td class="mono">${minToTime(p.start)}–${minToTime(p.end)}</td><td>${escapeHtml(displayTeam(p.teams[0] || ''))}${p.overrun?' (after window)':''}</td></tr>`).join('')}</table>`;
+      }
+    }
+    return `<section class="day"><div class="day-head"><span>Day ${String(day.index+1).padStart(2,'0')}</span><span>${escapeHtml(day.dayName)} · ${escapeHtml(day.dateLabel)}</span></div><div class="day-body">${content}</div></section>`;
+  }).join('');
+}
+function renderWeeklySwimMatrix(days, emptyLabel){
+  const slots = [...new Set(days.flatMap(day=>day.bookings.filter(b=>b.type==='swim').map(b=>`${b.start}-${b.end}`)))]
+    .map(key=>{
+      const [start,end] = key.split('-').map(Number);
+      return { key, start, end };
+    })
+    .sort((a,b)=>a.start-b.start || a.end-b.end);
+  if(!slots.length) return `<div class="empty">${emptyLabel}</div>`;
+  const headers = days.map(day=>`<th>${escapeHtml(day.dayName)}<br>${escapeHtml(day.dateLabel)}</th>`).join('');
+  const swimTeamClass = team => teamIdGender(team)==='g' ? 'girls' : (teamIdGender(team)==='b' ? 'boys' : '');
+  const rows = slots.map(slot=>{
+    const cells = days.map(day=>{
+      const matches = day.bookings
+        .filter(b=>b.type==='swim' && b.start===slot.start && b.end===slot.end)
+        .flatMap(b=>b.teams.map(team=>({ team, label:`${displayTeam(team)}${b.overrun?' (late)':''}` })));
+      return `<td>${matches.map(({team,label})=>`<span class="swim-team ${swimTeamClass(team)}">${escapeHtml(label)}</span>`).join('')}</td>`;
+    }).join('');
+    return `<tr><td class="mono">${minToTime(slot.start)}–${minToTime(slot.end)}</td>${cells}</tr>`;
+  }).join('');
+  return `<table class="compact matrix-table"><tr><th>Time</th>${headers}</tr>${rows}</table>`;
+}
+function printWeeklySchedule(type){
+  const { state, days } = getScheduleData();
+  const titles = {
+    swim: `${state.campName} - svimja`,
+    football: `${state.campName} - fótbóltur`,
+    photo: `${state.campName} - taka mynd`
+  };
+  openPrintWindow(titles[type], getWeekLabel(days), renderWeeklySections(days, type));
+}
+function getTeamBookings(day, team, type){
+  return day.bookings.filter(b=>b.type===type && b.teams && b.teams.includes(team)).sort((a,b)=>a.start-b.start || a.end-b.end);
+}
+function formatTimeRange(start, end){
+  return `${minToTime(start)}–${minToTime(end)}`;
+}
+function buildTeamPhotoNote(team, days){
+  const notes = days.flatMap(day=>getTeamBookings(day, team, 'photo').map(b=>`${day.dayName} ${formatTimeRange(b.start,b.end)}`));
+  if(!notes.length) return '';
+  return `<div class="photo-note"><b>Photo session:</b> ${escapeHtml(notes.join(' · '))}</div>`;
+}
+function buildTeamScheduleRows(team, days){
+  const rows = [];
+  const fixedOrder = ['Devotions', 'Clean team room', teamIdGender(team)==='g' ? 'Girls bible study' : 'Boys bible study'];
+  fixedOrder.forEach(label=>{
+    const cells = days.map(day=>{
+      const booking = getTeamBookings(day, team, 'fixed').find(b=>b.label===label);
+      return booking ? escapeHtml(formatTimeRange(booking.start, booking.end)) : '';
+    });
+    if(cells.some(Boolean)) rows.push({ label, cells });
+  });
+  const swimCells = days.map(day=>getTeamBookings(day, team, 'swim').map(b=>formatTimeRange(b.start,b.end)).join('<br>'));
+  if(swimCells.some(Boolean)) rows.push({ label:'Swimming', cells:swimCells.map(escapeHtml) });
+  const footballCells = days.map(day=>getTeamBookings(day, team, 'football').map(b=>{
+    const opponent = b.a===team ? b.b : b.b===team ? b.a : '';
+    return `${formatTimeRange(b.start,b.end)}${opponent ? ` vs ${displayTeam(opponent)}` : ''}`;
+  }).join('<br>'));
+  if(footballCells.some(Boolean)) rows.push({ label:'Football', cells:footballCells.map(escapeHtml) });
+  for(let i=0;i<4;i++) rows.push({ label:'', cells:days.map(()=>''), blank:true });
+  return rows;
+}
+function translateTeamActivityLabel(label){
+  const translations = {
+    'Devotions': 'Andakt',
+    'Clean team room': 'Vaska',
+    'Girls bible study': 'Bíbliutími gentur',
+    'Boys bible study': 'Bíbliutími dreingir',
+    'Swimming': 'Svimja',
+    'Football': 'Fótbóltur'
+  };
+  return translations[label] || label;
+}
+function renderTeamSchedulePages(state, days){
+  const teams = [
+    ...Array.from({length:state.girlsTeams},(_,i)=>makeTeamId('g', i)),
+    ...Array.from({length:state.boysTeams},(_,i)=>makeTeamId('b', i))
+  ];
+  return teams.map(team=>{
+    const rows = buildTeamScheduleRows(team, days);
+    const headerCols = days.map(day=>`<th>${escapeHtml(day.dayName)}<br>${escapeHtml(day.dateLabel)}</th>`).join('');
+    const rowHtml = rows.map(row=>`<tr><td class="activity-col">${row.blank ? '<span class="blank-line"></span>' : escapeHtml(translateTeamActivityLabel(row.label))}</td>${row.cells.map(cell=>`<td>${row.blank ? '<span class="blank-line"></span>' : `<span class="slot-line">${cell || ''}</span>`}</td>`).join('')}</tr>`).join('');
+    return `<section class="team-page"><div class="team-name">${escapeHtml(displayTeam(team, state.teamNames))}</div>${buildTeamPhotoNote(team, days)}<table class="compact"><tr><th class="activity-col">Activity</th>${headerCols}</tr>${rowHtml}</table></section>`;
+  }).join('');
+}
+function printTeamSchedules(){
+  const { state, days } = getScheduleData();
+  openPrintWindow('', '', renderTeamSchedulePages(state, days));
+}
+function getAllTeamIds(state){
+  return {
+    girls: Array.from({length:state.girlsTeams},(_,i)=>makeTeamId('g', i)),
+    boys: Array.from({length:state.boysTeams},(_,i)=>makeTeamId('b', i))
+  };
+}
+function checkpointPairKey(boy, girl){ return `${boy || '-'}|${girl || '-'}`; }
+function generateCheckpointRounds(state, roundCount=10){
+  const { girls, boys } = getAllTeamIds(state);
+  const primaryIsBoys = boys.length >= girls.length;
+  const primaryTeams = primaryIsBoys ? boys : girls;
+  const secondaryTeams = primaryIsBoys ? girls : boys;
+  if(primaryTeams.length===0) return [];
+  const offsets = CHECKPOINT_BASE_OFFSETS[primaryTeams.length] || CHECKPOINT_BASE_OFFSETS[1];
+  return Array.from({length:roundCount},(_,roundIndex)=>{
+    const pairs = [];
+    const usedPrimaryIndexes = new Set();
+
+    secondaryTeams.forEach((secondaryTeam, secondaryIndex)=>{
+      const primaryIndex = (secondaryIndex + offsets[roundIndex % offsets.length]) % primaryTeams.length;
+      usedPrimaryIndexes.add(primaryIndex);
+      pairs.push(primaryIsBoys
+        ? { boy: primaryTeams[primaryIndex], girl: secondaryTeam, game: CHECKPOINT_GAMES[(primaryIndex + roundIndex) % CHECKPOINT_GAMES.length] }
+        : { boy: secondaryTeam, girl: primaryTeams[primaryIndex], game: CHECKPOINT_GAMES[(primaryIndex + roundIndex) % CHECKPOINT_GAMES.length] });
+    });
+
+    primaryTeams.forEach((primaryTeam, primaryIndex)=>{
+      if(usedPrimaryIndexes.has(primaryIndex)) return;
+      pairs.push(primaryIsBoys
+        ? { boy: primaryTeam, girl: null, game: CHECKPOINT_GAMES[(primaryIndex + roundIndex) % CHECKPOINT_GAMES.length] }
+        : { boy: null, girl: primaryTeam, game: CHECKPOINT_GAMES[(primaryIndex + roundIndex) % CHECKPOINT_GAMES.length] });
+    });
+
+    const gameRows = CHECKPOINT_GAMES.map(game=>({ game, pair: pairs.find(pair=>pair.game===game) || null }));
+    return { round: roundIndex+1, pairs, gameRows };
+  });
+}
+function renderCheckpointPair(pair, state){
+  if(pair.boy && pair.girl) return `${displayTeam(pair.boy, state.teamNames)} + ${displayTeam(pair.girl, state.teamNames)}`;
+  if(pair.boy) return `${displayTeam(pair.boy, state.teamNames)} (alone)`;
+  if(pair.girl) return `${displayTeam(pair.girl, state.teamNames)} (alone)`;
+  return '';
+}
+function renderCheckpointChallengePages(state){
+  const rounds = generateCheckpointRounds(state, 10);
+  if(!rounds.length) return '<div class="empty">No teams available for the checkpoint challenge.</div>';
+  return rounds.map(round=>`<section class="day"><div class="day-head"><span>Round ${String(round.round).padStart(2,'0')}</span><span>Checkpoint challenge</span></div><div class="day-body"><table><tr><th>Game</th><th>Teams</th></tr>${round.gameRows.map(row=>`<tr><td>${escapeHtml(row.game)}</td><td>${row.pair ? escapeHtml(renderCheckpointPair(row.pair, state)) : ''}</td></tr>`).join('')}</table></div></section>`).join('');
+}
+function printCheckpointChallenge(){
+  const { state, days } = getScheduleData();
+  openPrintWindow(`${state.campName} - postarenning`, getWeekLabel(days), renderCheckpointChallengePages(state));
+}
+
+// ============ full day/schedule generation ============
+function generate(state){
+  const girlsFootballIds = Array.from({length:state.girlsTeams},(_,i)=>makeTeamId('g', i)).filter((_,i)=>state.teamFootball.g[i]);
+  const boysFootballIds = Array.from({length:state.boysTeams},(_,i)=>makeTeamId('b', i)).filter((_,i)=>state.teamFootball.b[i]);
+  state.girlsFootball = girlsFootballIds.length;
+  state.boysFootball = boysFootballIds.length;
+
+  const girlsGroups = makeGroups(girlsFootballIds, state.groupSize);
+  const boysGroups = makeGroups(boysFootballIds, state.groupSize);
+  const hasSeparateFinalsDay = state.campDays > 1;
+  const lastDayIndex = state.campDays - 1;
+
+  const allGirlsTeams = Array.from({length:state.girlsTeams},(_,i)=>makeTeamId('g', i));
+  const allBoysTeams = Array.from({length:state.boysTeams},(_,i)=>makeTeamId('b', i));
+  const allTeams = [...allGirlsTeams, ...allBoysTeams];
+
+  const girlsSeedLabels = seedLabelsFor(girlsGroups, 'Girls');
+  const boysSeedLabels = seedLabelsFor(boysGroups, 'Boys');
+  const girlsBracket = buildBracket(girlsGroups.length>1 ? girlsGroups.length : state.girlsFootball);
+  const boysBracket = buildBracket(boysGroups.length>1 ? boysGroups.length : state.boysFootball);
+
+  const pitchNames = Array.from({length:state.pitches},(_,i)=>`Pitch ${i+1}`);
+
+  const days=[];
+  for(let d=0; d<state.campDays; d++){
+    const isLastDay = d===lastDayIndex;
+    const isPhotoDay = state.photoDay>0 && (state.photoDay-1)===d;
+    const dayNum = d+1;
+    const bookings=[];
+    const warnings=[];
+
+    addFixedBlock(bookings, dayNum, allTeams, timeToMin(state.devStart), timeToMin(state.devEnd), 'Devotions');
+    addFixedBlock(bookings, dayNum, allTeams, timeToMin(state.cleanStart), timeToMin(state.cleanEnd), 'Clean team room');
+    addFixedBlock(bookings, dayNum, allBoysTeams, timeToMin(state.bBibleStart), timeToMin(state.bBibleEnd), 'Boys bible study');
+    addFixedBlock(bookings, dayNum, allGirlsTeams, timeToMin(state.gBibleStart), timeToMin(state.gBibleEnd), 'Girls bible study');
+
+    let girlsMatches=[], boysMatches=[], footballLabel='Group stage';
+    if(isLastDay && hasSeparateFinalsDay){
+      footballLabel='Play-offs';
+    } else {
+      girlsMatches = groupFixturesForDay(girlsGroups, d, 'g', state.teamNames);
+      boysMatches = groupFixturesForDay(boysGroups, d, 'b', state.teamNames);
+      if(girlsMatches.some(m=>m.repeat) || boysMatches.some(m=>m.repeat)) footballLabel='Group stage (repeat fixtures)';
+      if(!hasSeparateFinalsDay) footballLabel='Group stage + play-offs combined (only 1 camp day)';
+    }
+
+    const afternoonEnd = timeToMin(isLastDay ? state.aEndLastDay : state.aEnd);
+    const afternoonWin = {start:timeToMin(state.aStart), end:afternoonEnd};
+    const afternoonMid = Math.floor((((afternoonWin.start + afternoonWin.end) / 2)) / 5) * 5;
+    const girlsEarlyAfternoon = d % 2 === 0;
+    const girlsSwimWin = girlsEarlyAfternoon ? {start:afternoonWin.start, end:afternoonMid} : {start:afternoonMid, end:afternoonWin.end};
+    const boysSwimWin = girlsEarlyAfternoon ? {start:afternoonMid, end:afternoonWin.end} : {start:afternoonWin.start, end:afternoonMid};
+    const gWin = {start:timeToMin(state.gSportStart), end:timeToMin(state.gSportEnd)};
+    const bWin = {start:timeToMin(state.bSportStart), end:timeToMin(state.bSportEnd)};
+    const girlsUseEff = isLastDay ? (state.gMorningUse==='none' ? 'none' : 'swim') : state.gMorningUse;
+    const boysUseEff = isLastDay ? (state.bMorningUse==='none' ? 'none' : 'swim') : state.bMorningUse;
+
+    let girlsMorningFootball=[], girlsMorningFootballLeftover=girlsMatches;
+    let girlsMorningSwim=[], girlsMorningSwimLeftover=allGirlsTeams;
+    if(girlsUseEff==='swim' || girlsUseEff==='split'){
+      const rs = scheduleSwimmingDynamic(rotateForDay(allGirlsTeams, d, state.teamsPerSwimSlot), dayNum, gWin, state.teamsPerSwimSlot, state.swimMin, bookings, 'g', 'morning-g');
+      girlsMorningSwim=rs.scheduled; girlsMorningSwimLeftover=rs.leftover;
+    }
+    if(girlsUseEff==='football' || girlsUseEff==='split' || girlsUseEff==='swim'){
+      const rf = scheduleFootballEarliestFit(girlsMatches, dayNum, gWin, bookings, state.footballMin, pitchNames, state.indoorHall, 'morning-g');
+      girlsMorningFootball=rf.scheduled; girlsMorningFootballLeftover=rf.leftover;
+    }
+
+    let boysMorningFootball=[], boysMorningFootballLeftover=boysMatches;
+    let boysMorningSwim=[], boysMorningSwimLeftover=allBoysTeams;
+    if(boysUseEff==='swim' || boysUseEff==='split'){
+      const rs = scheduleSwimmingDynamic(rotateForDay(allBoysTeams, d, state.teamsPerSwimSlot), dayNum, bWin, state.teamsPerSwimSlot, state.swimMin, bookings, 'b', 'morning-b');
+      boysMorningSwim=rs.scheduled; boysMorningSwimLeftover=rs.leftover;
+    }
+    if(boysUseEff==='football' || boysUseEff==='split' || boysUseEff==='swim'){
+      const rf = scheduleFootballEarliestFit(boysMatches, dayNum, bWin, bookings, state.footballMin, pitchNames, state.indoorHall, 'morning-b');
+      boysMorningFootball=rf.scheduled; boysMorningFootballLeftover=rf.leftover;
+    }
+
+    let photoScheduled=[];
+    if(isPhotoDay && state.photoMin>0){
+      const pr = schedulePhotosWithOverrun(allTeams, dayNum, afternoonWin, bookings, state.photoMin);
+      photoScheduled = pr.scheduled;
+      if(pr.overrunCount>0) warnings.push(`${pr.overrunCount} team photo(s) couldn't fit before ${minToTime(afternoonEnd)} and were scheduled after it.`);
+    }
+
+    const gSwimR = scheduleSwimWithOverrun(girlsMorningSwimLeftover, dayNum, girlsSwimWin, bookings, state.teamsPerSwimSlot, state.swimMin, 'g', 'afternoon', afternoonWin.end);
+    const bSwimR = scheduleSwimWithOverrun(boysMorningSwimLeftover, dayNum, boysSwimWin, bookings, state.teamsPerSwimSlot, state.swimMin, 'b', 'afternoon', afternoonWin.end);
+    if(gSwimR.overrunCount>0) warnings.push(`${gSwimR.overrunCount} girls team(s) couldn't get a swim slot before ${minToTime(afternoonEnd)}.`);
+    if(bSwimR.overrunCount>0) warnings.push(`${bSwimR.overrunCount} boys team(s) couldn't get a swim slot before ${minToTime(afternoonEnd)}.`);
+
+    let afternoonFootball=[];
+    if(isLastDay && hasSeparateFinalsDay){
+      const girlsEntrants = girlsGroups.length>1 ? girlsGroups.length : state.girlsFootball;
+      const boysEntrants = boysGroups.length>1 ? boysGroups.length : state.boysFootball;
+      if(state.girlsFootball>0 && girlsEntrants<2) warnings.push(`Not enough girls' football teams/groups for a play-off on the last day.`);
+      if(state.boysFootball>0 && boysEntrants<2) warnings.push(`Not enough boys' football teams/groups for a play-off on the last day.`);
+      const gFinals = scheduleFinalsBracket(girlsBracket, girlsSeedLabels, dayNum, afternoonWin.start, bookings, state.finalsMin, pitchNames, state.indoorHall, 'g');
+      const bFinals = scheduleFinalsBracket(boysBracket, boysSeedLabels, dayNum, afternoonWin.start, bookings, state.finalsMin, pitchNames, state.indoorHall, 'b');
+      afternoonFootball = [...gFinals, ...bFinals];
+    } else {
+      const combinedLeftover=[];
+      const maxLen = Math.max(girlsMorningFootballLeftover.length, boysMorningFootballLeftover.length);
+      for(let i=0;i<maxLen;i++){
+        if(girlsMorningFootballLeftover[i]) combinedLeftover.push(girlsMorningFootballLeftover[i]);
+        if(boysMorningFootballLeftover[i]) combinedLeftover.push(boysMorningFootballLeftover[i]);
+      }
+      const fr = scheduleFootballWithOverrun(combinedLeftover, dayNum, afternoonWin, bookings, state.footballMin, pitchNames, state.indoorHall, 'afternoon');
+      afternoonFootball = fr.scheduled;
+      if(fr.overrunCount>0) warnings.push(`${fr.overrunCount} football fixture(s) couldn't fit before ${minToTime(afternoonEnd)} and were scheduled after it.`);
+    }
+
+    const sportBookings = bookings.filter(b=>b.type!=='fixed');
+    const dayFinish = sportBookings.length ? Math.max(...sportBookings.map(b=>b.end)) : afternoonWin.start;
+    if(dayFinish > afternoonEnd){
+      warnings.push(`Day finishes at ${minToTime(dayFinish)}, ${dayFinish-afternoonEnd} min after the ${minToTime(afternoonEnd)} window end.`);
+    }
+
+    const dayMeta = getDayMeta(state.startDate, d);
+    const afternoonSwim = [...gSwimR.scheduled, ...bSwimR.scheduled].sort((a,b)=>a.start-b.start || a.end-b.end || a.gender.localeCompare(b.gender));
+
+    days.push({
+      index:d, isLastDay, isPhotoDay, footballLabel, warnings, bookings,
+      dayName: dayMeta.dayName, dateLabel: dayMeta.dateLabel,
+      afternoonSwimOrder: girlsEarlyAfternoon ? 'Girls early · Boys late' : 'Boys early · Girls late',
+      girlsMorningFootball, girlsMorningFootballLeftover, girlsMorningSwim, girlsMorningSwimLeftover,
+      boysMorningFootball, boysMorningFootballLeftover, boysMorningSwim, boysMorningSwimLeftover,
+      photoScheduled, afternoonSwim, afternoonFootball,
+      girlsBracketRounds: isLastDay && hasSeparateFinalsDay ? girlsBracket : null,
+      boysBracketRounds: isLastDay && hasSeparateFinalsDay ? boysBracket : null,
+      gWin, bWin, afternoonWin, dayFinish, pitchNames
+    });
+  }
+  return days;
+}
+
+// ============ render ============
+function fmtTeamTag(name){
+  if(teamIdGender(name)==='g') return '<span class="tag g">G</span>';
+  if(teamIdGender(name)==='b') return '<span class="tag b">B</span>';
+  return '';
+}
+function fmtPitchTag(pitch){
+  return pitch==='Indoor Hall' ? `<span class="tag indoor">Indoor</span> ${escapeHtml(pitch)}` : escapeHtml(pitch);
+}
+function fmtOverrun(b){
+  return b.overrun ? ` <span class="tag overrun">after window</span>` : '';
+}
+function renderSwimRows(slots){
+  return [...slots].sort((a,b)=>a.start-b.start || a.end-b.end).map(s=>`<tr><td class="time mono">${minToTime(s.start)}–${minToTime(s.end)}</td><td>${s.teams.map(t=>fmtTeamTag(t)+' '+escapeHtml(displayTeam(t))).join(', ')}${fmtOverrun(s)}</td></tr>`).join('');
+}
+function renderFootballRows(slots){
+  return slots.map(m=>`<tr><td class="time mono">${minToTime(m.start)}–${minToTime(m.end)}</td><td>${escapeHtml(m.label)}</td><td>${fmtTeamTag(m.a)} ${escapeHtml(displayTeam(m.a))} <span style="color:var(--ink-soft)">vs</span> ${fmtTeamTag(m.b)} ${escapeHtml(displayTeam(m.b))}</td><td>${fmtPitchTag(m.resource)}${fmtOverrun(m)}</td></tr>`).join('');
+}
+function renderPhotoRows(slots){
+  return slots.map(s=>`<tr><td class="time mono">${minToTime(s.start)}–${minToTime(s.end)}</td><td>${fmtTeamTag(s.teams[0])} ${escapeHtml(displayTeam(s.teams[0]))}${fmtOverrun(s)}</td></tr>`).join('');
+}
+
+function renderResourceTimeline(day, state){
+  const resources = ['Pool', ...day.pitchNames, ...(state.indoorHall?['Indoor Hall']:[]), ...(day.isPhotoDay?['Photographer']:[])];
+  const viewStart = timeToMin(state.devStart);
+  const viewEnd = Math.max(day.dayFinish, day.afternoonWin.end);
+  const span = Math.max(1, viewEnd-viewStart);
+  const rows = resources.map(r=>{
+    const segs = day.bookings.filter(b=>b.resource===r).map(b=>{
+      const leftPct = ((b.start-viewStart)/span*100).toFixed(2);
+      const widthPct = Math.max(0.6, (b.end-b.start)/span*100).toFixed(2);
+      const label = b.type==='swim' ? b.teams.map(displayTeam).join('+') : (b.type==='photo' ? displayTeam(b.teams[0]) : `${displayTeam(b.a)} v ${displayTeam(b.b)}`);
+      return `<div class="rseg ${b.type}${b.overrun?' overrun':''}" style="left:${leftPct}%;width:${widthPct}%" title="${escapeHtml(label)} ${minToTime(b.start)}–${minToTime(b.end)}">${escapeHtml(label)}</div>`;
+    }).join('');
+    return `<div class="rtrow"><div class="rtlabel">${r}</div><div class="rttrack">${segs}</div></div>`;
+  }).join('');
+  return `<div class="rtimeline">${rows}</div>`;
+}
+
+function renderGroupsPanel(state){
+  const girlsFootballIds = Array.from({length:state.girlsTeams},(_,i)=>makeTeamId('g', i)).filter((_,i)=>state.teamFootball.g[i]);
+  const boysFootballIds = Array.from({length:state.boysTeams},(_,i)=>makeTeamId('b', i)).filter((_,i)=>state.teamFootball.b[i]);
+  const girlsGroups = makeGroups(girlsFootballIds, state.groupSize);
+  const boysGroups = makeGroups(boysFootballIds, state.groupSize);
+  function groupRows(groups, genderTag){
+    if(groups.length===0) return '<div class="empty-note">No football teams.</div>';
+    return groups.map((g,i)=>{
+      const tagLabel = groups.length>1 ? `Group ${i+1}` : 'All teams';
+      const members = g.map(team=>escapeHtml(displayTeam(team, state.teamNames))).join(', ');
+      return `<div class="group-row"><b>${tagLabel}</b>${members}</div>`;
+    }).join('');
+  }
+  return `
+    <div class="groups-panel">
+      <div class="groups-card">
+        <h4>Girls football groups</h4>
+        ${groupRows(girlsGroups,'g')}
+      </div>
+      <div class="groups-card">
+        <h4>Boys football groups</h4>
+        ${groupRows(boysGroups,'b')}
+      </div>
+    </div>`;
+}
+
+function morningHeader(genderLabel, windowStr, swim, football){
+  let dots, label;
+  if(swim.length && football.length){ dots='<span class="dot swim"></span><span class="dot football"></span>'; label='Football + Swimming'; }
+  else if(football.length){ dots='<span class="dot football"></span>'; label='Football'; }
+  else if(swim.length){ dots='<span class="dot swim"></span>'; label='Swimming'; }
+  else { dots='<span class="dot morning"></span>'; label='Not used'; }
+  return `<div class="block-title">${dots}${genderLabel} morning window (${windowStr}) — ${label}</div>`;
+}
+
+function render(){
+  const { state, days } = getScheduleData();
+
+  document.getElementById('summaryLine').innerHTML =
+    `<b>Zarepta</b> camp &nbsp;·&nbsp; <b>${state.startDate ? escapeHtml(getDayMeta(state.startDate, 0).dateLabel) : 'No start date'}</b> start &nbsp;·&nbsp; ` +
+    `<b>${state.girlsTeams}</b> girl teams (<b>${state.girlsFootball}</b> football) &nbsp;·&nbsp; ` +
+    `<b>${state.boysTeams}</b> boy teams (<b>${state.boysFootball}</b> football) &nbsp;·&nbsp; ` +
+    `<b>${state.kidsPerTeam}</b> kids/team &nbsp;·&nbsp; <b>${state.campDays}</b>-day camp &nbsp;·&nbsp; ` +
+    `groups of ${state.groupSize} &nbsp;·&nbsp; ${state.pitches} pitch(es)${state.indoorHall?' + indoor hall (girls)':''}`;
+
+  document.getElementById('groupsPanel').innerHTML = renderGroupsPanel(state);
+
+  const container = document.getElementById('schedule');
+  container.innerHTML = days.map(day=>{
+    const girlsFootballIds = Array.from({length:state.girlsTeams},(_,i)=>makeTeamId('g', i)).filter((_,i)=>state.teamFootball.g[i]);
+    const boysFootballIds = Array.from({length:state.boysTeams},(_,i)=>makeTeamId('b', i)).filter((_,i)=>state.teamFootball.b[i]);
+    const byeNotesGirls = day.girlsBracketRounds ? day.girlsBracketRounds.flat().filter(m=>m&&m.bye).map(m=>`${slotLabel(m.advancing,seedLabelsFor(makeGroups(girlsFootballIds,state.groupSize),'Girls'))} gets a bye`) : [];
+    const byeNotesBoys = day.boysBracketRounds ? day.boysBracketRounds.flat().filter(m=>m&&m.bye).map(m=>`${slotLabel(m.advancing,seedLabelsFor(makeGroups(boysFootballIds,state.groupSize),'Boys'))} gets a bye`) : [];
+    const byeNotes = [...byeNotesGirls, ...byeNotesBoys];
+
+    const gMornNote = (day.girlsMorningSwimLeftover.length || day.girlsMorningFootballLeftover.length) ?
+      `<div class="leftover-note">Moved to the afternoon: ${escapeHtml([...day.girlsMorningSwimLeftover.map(t=>displayTeam(t)+' (swim)'), ...day.girlsMorningFootballLeftover.map(m=>displayTeam(m.a)+' vs '+displayTeam(m.b)+' (football)')].join(', '))}</div>` : '';
+    const bMornNote = (day.boysMorningSwimLeftover.length || day.boysMorningFootballLeftover.length) ?
+      `<div class="leftover-note">Moved to the afternoon: ${escapeHtml([...day.boysMorningSwimLeftover.map(t=>displayTeam(t)+' (swim)'), ...day.boysMorningFootballLeftover.map(m=>displayTeam(m.a)+' vs '+displayTeam(m.b)+' (football)')].join(', '))}</div>` : '';
+
+    return `
+    <div class="day-card">
+      <div class="day-head">
+        <div class="day-tab">DAY ${String(day.index+1).padStart(2,'0')}</div>
+        <div>
+          <div class="day-name">${escapeHtml(day.dayName)} · ${escapeHtml(day.dateLabel)}</div>
+          <div class="day-sub">${escapeHtml(day.footballLabel)}${day.isPhotoDay?' · Team photo day':''}</div>
+        </div>
+        ${day.isLastDay ? '<div class="day-tag">Finals day</div>' : ''}
+      </div>
+      ${day.warnings.length ? `<div class="day-warn">${day.warnings.map(w=>`<div>⚠ ${w}</div>`).join('')}</div>` : ''}
+      ${renderResourceTimeline(day, state)}
+      <div class="day-body">
+
+        <div class="block-title"><span class="dot morning"></span>Fixed blocks (all teams)</div>
+        <div class="fixed-note">
+          <div class="row"><b>${state.devStart}–${state.devEnd}</b> — Devotions</div>
+          <div class="row"><b>${state.cleanStart}–${state.cleanEnd}</b> — Clean team room</div>
+          <div class="row"><b>${state.bBibleStart}–${state.bBibleEnd}</b> — Boys bible study <span class="tag morn">girls free</span></div>
+          <div class="row"><b>${state.gBibleStart}–${state.gBibleEnd}</b> — Girls bible study <span class="tag morn">boys free</span></div>
+        </div>
+
+        ${morningHeader('Girls', `${state.gSportStart}–${state.gSportEnd}`, day.girlsMorningSwim, day.girlsMorningFootball)}
+        ${day.girlsMorningSwim.length ? `<div class="subtable-label">Swimming</div><table><tr><th class="time">Time</th><th>Team(s)</th></tr>${renderSwimRows(day.girlsMorningSwim)}</table>` : ''}
+        ${day.girlsMorningFootball.length ? `<div class="subtable-label">Football</div><table><tr><th class="time">Time</th><th>Round</th><th>Fixture</th><th>Venue</th></tr>${renderFootballRows(day.girlsMorningFootball)}</table>` : ''}
+        ${(!day.girlsMorningSwim.length && !day.girlsMorningFootball.length) ? '<div class="empty-note">Not used.</div>' : ''}
+        ${gMornNote}
+
+        ${morningHeader('Boys', `${state.bSportStart}–${state.bSportEnd}`, day.boysMorningSwim, day.boysMorningFootball)}
+        ${day.boysMorningSwim.length ? `<div class="subtable-label">Swimming</div><table><tr><th class="time">Time</th><th>Team(s)</th></tr>${renderSwimRows(day.boysMorningSwim)}</table>` : ''}
+        ${day.boysMorningFootball.length ? `<div class="subtable-label">Football</div><table><tr><th class="time">Time</th><th>Round</th><th>Fixture</th><th>Venue</th></tr>${renderFootballRows(day.boysMorningFootball)}</table>` : ''}
+        ${(!day.boysMorningSwim.length && !day.boysMorningFootball.length) ? '<div class="empty-note">Not used.</div>' : ''}
+        ${bMornNote}
+
+        ${day.isPhotoDay && state.photoMin>0 ? `
+        <div class="block-title"><span class="dot photo"></span>Team photos (one team at a time, ${state.photoMin} min each — other teams can swim/play at the same time)</div>
+        ${day.photoScheduled.length ? `<table><tr><th class="time">Time</th><th>Team</th></tr>${renderPhotoRows(day.photoScheduled)}</table>` : '<div class="empty-note">No teams to photograph.</div>'}
+        ` : ''}
+
+        <div class="block-title"><span class="dot swim"></span>Afternoon swimming (leftover from the morning windows · ${escapeHtml(day.afternoonSwimOrder)})</div>
+        ${day.afternoonSwim.length ? `<table><tr><th class="time">Time</th><th>Team(s)</th></tr>${renderSwimRows(day.afternoonSwim)}</table>` : '<div class="empty-note">Nothing left over — all swimming done in the morning windows.</div>'}
+
+        <div class="block-title"><span class="dot football"></span>Afternoon football</div>
+        ${day.afternoonFootball.length ? `<table><tr><th class="time">Time</th><th>Round</th><th>Fixture</th><th>Venue</th></tr>${renderFootballRows(day.afternoonFootball)}</table>` : '<div class="empty-note">No football in the afternoon today.</div>'}
+        ${byeNotes.length ? `<div class="hint" style="color:var(--ink-soft); margin-top:8px;">${byeNotes.join(' · ')}</div>` : ''}
+        ${day.isLastDay ? `<div class="hint" style="color:var(--ink-soft); margin-top:8px;">Group-winner / standing labels are decided by each group's round-robin results going into finals day.</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  saveState();
+}
+
+loadPersistedState();
+
+if(!document.getElementById('startDate').value){
+  document.getElementById('startDate').value = new Date().toISOString().slice(0,10);
+}
+
+document.querySelectorAll('.sidebar input, .sidebar select').forEach(el=>{
+  if(el.classList.contains('team-name-input')) return;
+  el.addEventListener('input', render);
+});
+render();
+</script>
+</body>
+</html>
